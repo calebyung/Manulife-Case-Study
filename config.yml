@@ -3,9 +3,8 @@ seed: 0
 n_jobs: 8
 gpu_enabled: False
 plt_color: 'white'
-horizons: {'1d':1, '3d':3, '1w':5, '2w':10, '1m':21, '3m':63, '6m':126, '9m':189, '12m':252}
 
-data_path: '../input/manulife-retention/Worksheet in Case preparation for interview- Data Scientist v2 (002) R.xlsx'
+data_path: '../../input/manulife-retention/Worksheet in Case preparation for interview- Data Scientist v2 (002) R.xlsx'
 analysis_date: '2023-03-01'
 
 
