@@ -8,7 +8,7 @@ class FeatureEngineering:
     def __init__(self, params):
         self.params = params
         
-    def feature_engineering(self, params, X, mode):
+    def feature_engineering(self, X, mode):
         # remove client_id as it is not a feature
         X = X.drop('client_id', axis=1)
 
@@ -24,14 +24,14 @@ class FeatureEngineering:
 
         # identify invalid year_of_birth; create feature as age
         X.year_of_birth = np.select([X.year_of_birth==1, True],[np.nan, X.year_of_birth])
-        X['age'] = datetime.strptime(params['analysis_date'], '%Y-%m-%d').year - X.year_of_birth
+        X['age'] = datetime.strptime(self.params['analysis_date'], '%Y-%m-%d').year - X.year_of_birth
         X = X.drop('year_of_birth', axis=1)
 
         # identify invalid join_date; create feature as years of relationship
         X.join_date = X.join_date.astype(str)
         X.join_date = np.select([X.join_date.isin(['0001-01-01 00:00:00.000','00:00:00']), True],[np.nan, X.join_date])
         X.join_date = pd.to_datetime(X.join_date)
-        X['yrs_of_relationship'] = (np.datetime64(params['analysis_date'], 'D') - X.join_date) / np.timedelta64(1, 'Y')
+        X['yrs_of_relationship'] = (np.datetime64(self.params['analysis_date'], 'D') - X.join_date) / np.timedelta64(1, 'Y')
         X = X.drop('join_date', axis=1)
 
         # remove with_product_a as it has zero variance
