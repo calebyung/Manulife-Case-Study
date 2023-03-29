@@ -1,5 +1,5 @@
 from sklearn.model_selection import StratifiedKFold
-from feature_engineering import FeatureEngineering
+from src.feature_engineering import FeatureEngineering
 import lightgbm as lgbm
 import optuna
 from optuna import Trial, visualization
