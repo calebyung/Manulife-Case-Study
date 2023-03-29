@@ -1,8 +1,12 @@
 from sklearn.model_selection import StratifiedKFold
 from src.feature_engineering import FeatureEngineering
+from src.util import new_plot
 import lightgbm as lgbm
 import optuna
 from optuna import Trial, visualization
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot as plt
 
 class LGBMModel:
 
@@ -38,3 +42,41 @@ class LGBMModel:
             eval_names = ['Validation'],
             **self.params['lgbm_fit_params']
         )
+        self.folds[fold]['model'] = model
+        return model.best_score_['Validation'][self.params['lgbm_fit_params']['eval_metric']]
+
+    def tain_lgbm_kfold(self, lgbm_var_params):
+        return np.mean([self.train_lgbm(fold, lgbm_var_params) for fold in range(self.params['n_fold'])])
+
+    def Objective(self, trial):
+        lgbm_var_params = dict(
+            max_depth = trial.suggest_int('max_depth', 2, 32, log=True),
+            num_leaves = trial.suggest_int('num_leaves', 16, 64, log=True),
+            subsample = trial.suggest_float("subsample", 0.5, 1),
+            colsample_bytree = trial.suggest_float("colsample_bytree", 0.5, 1),
+            reg_alpha = trial.suggest_float("reg_alpha", 1e-2, 16, log=True),
+            reg_lambda = trial.suggest_float("reg_lambda", 1e-2, 16, log=True),
+        )
+        return self.tain_lgbm_kfold(lgbm_var_params)
+
+
+    def optimize_hp(self):
+        # run optimization
+        study = optuna.create_study(direction="minimize", study_name='LGBM optimization')
+        study.optimize(self.Objective, timeout=self.params['hp_tune_timeout'])
+        
+        # save results
+        self.best_params = study.best_params
+        self.best_score = study.best_value
+        self.trials = study.trials_dataframe()
+        
+        # visualise relationship between parameter and CV score
+        for c in self.trials.columns:
+            if c[:7]=='params_':
+                new_plot()
+                self.trials.plot.scatter(c, 'value')
+                plt.grid()
+                plt.title(c)
+                plt.show()
+        return
+    
