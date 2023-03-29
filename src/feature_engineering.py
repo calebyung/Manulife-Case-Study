@@ -69,7 +69,7 @@ class FeatureEngineering:
         # return new X if mode is transform
         if mode == 'fit':
             return
-        else:
+        elif mode == 'transform':
             return X
 
 
