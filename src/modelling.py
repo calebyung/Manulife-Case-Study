@@ -187,6 +187,7 @@ class LGBMModel:
                         pd.DataFrame({'feat':model.feature_name_, 'imp':imp_split}).assign(imp_type='split', imp=lambda x: x.imp.rank())
                     ], axis=0).assign(fold=fold)
             feat_imp.append(output)
+        feat_imp = pd.concat(feat_imp)
         feat_imp_grouped = feat_imp.groupby('feat').imp.mean().sort_values(ascending=False).reset_index()
         feat_imp_grouped.to_csv(os.path.join(self.params['output_path'], 'feat_imp_grouped.csv'))
         display(feat_imp_grouped)
