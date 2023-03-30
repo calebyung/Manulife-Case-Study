@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, precision_recall_curve, log_loss
+from IPython.display import display
 
 
 class LGBMModel:
@@ -143,6 +144,18 @@ class LGBMModel:
             y_test_pred_proba += model.predict_proba(X_test)[:,1] / self.params['n_fold']
         y_test_pred = (y_test_pred_proba > 0.5).astype(int)
         self.eval_test = self.evaluate(self.folds['test']['y_test'], y_test_pred, y_test_pred_proba)
+
+    def evaluate_all(self):
+        self.evaluate_trn()
+        self.evaluate_val()
+        self.evaluate_test()
+        self.eval_metrics = pd.DataFrame({'Train':[self.eval_trn['precision'], self.eval_trn['recall'], self.eval_trn['f1'], self.eval_trn['logloss']],
+                                        'Validation':[self.eval_val['precision'], self.eval_val['recall'], self.eval_val['f1'], self.eval_val['logloss']],
+                                        'Test':[self.eval_test['precision'], self.eval_test['recall'], self.eval_test['f1'], self.eval_test['logloss']]})
+        display(self.eval_metrics)
+        self.eval_metrics.to_csv('eval_metrics.csv')
+
+
 
 
 
