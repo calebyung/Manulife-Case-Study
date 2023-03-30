@@ -55,6 +55,7 @@ class LGBMModel:
         model.fit(
             X = X,
             y = y,
+            categorical_feature = [1],
             eval_set = [(self.folds[fold]['X_val'], self.folds[fold]['y_val'])],
             eval_names = ['Validation'],
             **self.params['lgbm_fit_params']

@@ -17,10 +17,6 @@ class FeatureEngineering:
 
         # treate missing industry as separate category; group smaller industries into one; one-hot encoding the rest
         X.industry = X.industry.fillna(-1).astype(int)
-        X.industry = np.select([X.industry.isin([10,20,11,15,17,14]), True],[0, X.industry])
-        for i in [99,12,13,0]:
-            X[f'industry_{i}'] = (X.industry == i).astype(int)
-        X = X.drop('industry', axis=1)
 
         # identify invalid year_of_birth; create feature as age
         X.year_of_birth = np.select([X.year_of_birth==1, True],[np.nan, X.year_of_birth])
@@ -53,7 +49,7 @@ class FeatureEngineering:
         X.channel = X.channel.map({'Agency':-1, 'Others':0, 'Broker':1})
 
         # preset feature order
-        X = X[['sex','industry_99','industry_12','industry_13','industry_0','age','yrs_of_relationship','with_product_b','total_aum','no_of_transaction','income','channel']]
+        X = X[['sex','industry','age','yrs_of_relationship','with_product_b','total_aum','no_of_transaction','income','channel']]
 
         # imputation
         if mode == 'fit':
