@@ -16,7 +16,7 @@ class FeatureEngineering:
         X.sex = X.sex.fillna('Unknown').map({'M':-1, 'Unknown':0, 'F':1})
 
         # treate missing industry as separate category; group smaller industries into one; one-hot encoding the rest
-        X.industry = X.industry.fillna(-1).astype(int)
+        X.industry = X.industry.fillna(0).astype(int)
 
         # identify invalid year_of_birth; create feature as age
         X.year_of_birth = np.select([X.year_of_birth==1, True],[np.nan, X.year_of_birth])

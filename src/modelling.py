@@ -162,7 +162,7 @@ class LGBMModel:
         self.eval_metrics.to_csv(os.path.join(self.params['output_path'], 'eval_metrics.csv'))
 
         # report test set confusion matrix
-        self.test_confusion_matrix = pd.DataFrame(self.eval_test, columns=['Pred_0', 'Pred_1'], index=['True_0','True_1'])
+        self.test_confusion_matrix = pd.DataFrame(self.eval_test['conf'], columns=['Pred_0', 'Pred_1'], index=['True_0','True_1'])
         self.test_confusion_matrix.to_csv(os.path.join(self.params['output_path'], 'test_confusion_matrix.csv'))
         display(self.test_confusion_matrix)
 
