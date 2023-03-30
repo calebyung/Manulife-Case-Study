@@ -191,7 +191,8 @@ class LGBMModel:
         feat_imp_grouped = feat_imp.groupby('feat').imp.mean().sort_values(ascending=False).reset_index()
         feat_imp_grouped.to_csv(os.path.join(self.params['output_path'], 'feat_imp_grouped.csv'))
         display(feat_imp_grouped)
-        feat_imp_grouped.sort_values('imp', ascending=True).set_index('feat').plot.barh(figsize=(20, 20))
+        feat_imp_grouped.sort_values('imp', ascending=True).set_index('feat').plot.barh(width=0.1)
+        plt.title('Feature Importance (Averaged Rank)')
         self.feat_imp = feat_imp
         self.feat_imp_grouped = feat_imp_grouped
 
