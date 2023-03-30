@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, date
 from sklearn.preprocessing import RobustScaler
+import seaborn as sns
 
 class FeatureEngineering:
 

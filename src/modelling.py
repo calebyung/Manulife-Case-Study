@@ -197,6 +197,12 @@ class LGBMModel:
         self.feat_imp = feat_imp
         self.feat_imp_grouped = feat_imp_grouped
 
+    def show_feature_correlation(self):
+        fe = FeatureEngineering(self.params)
+        fe.feature_engineering(self.data.drop('churn_in_6m', axis=1), mode='fit')
+        X = fe.feature_engineering(self.data.drop('churn_in_6m', axis=1), mode='transform')
+        y = self.data['churn_in_6m']
+
 
 
 
