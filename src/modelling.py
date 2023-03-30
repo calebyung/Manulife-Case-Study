@@ -107,7 +107,7 @@ class LGBMModel:
         eval_all = []
         for fold in range(self.params['n_fold']):
             model = self.folds[fold]['model']
-            y_pred_proba = model.predict_proba(self.folds[fold]['X_trn'])
+            y_pred_proba = model.predict_proba(self.folds[fold]['X_trn'])[:,1]
             y_pred = (y_pred_proba > 0.5).astype(int)
             y = self.folds[fold]['y_trn']
             eval_all.append(self.evaluate(y, y_pred, y_pred_proba))
@@ -122,7 +122,7 @@ class LGBMModel:
         eval_all = []
         for fold in range(self.params['n_fold']):
             model = self.folds[fold]['model']
-            y_pred_proba = model.predict_proba(self.folds[fold]['X_val'])
+            y_pred_proba = model.predict_proba(self.folds[fold]['X_val'])[:,1]
             y_pred = (y_pred_proba > 0.5).astype(int)
             y = self.folds[fold]['y_val']
             eval_all.append(self.evaluate(y, y_pred, y_pred_proba))
@@ -140,7 +140,7 @@ class LGBMModel:
             X_test = self.folds['test']['X_test']
             X_test = fe.feature_engineering(X_test, 'transform')
             model = self.folds[fold]['model']
-            y_test_pred_proba += model.predict_proba(X_test) / self.params['n_fold']
+            y_test_pred_proba += model.predict_proba(X_test)[:,1] / self.params['n_fold']
         y_test_pred = (y_test_pred_proba > 0.5).astype(int)
         self.eval_test = self.evaluate(self.folds['test']['y_test'], y_test_pred, y_test_pred_proba)
 

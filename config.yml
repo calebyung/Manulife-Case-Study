@@ -28,7 +28,7 @@ lgbm_fixed_params:
   learning_rate: 0.05
 
 lgbm_fit_params:
-  verbose: True
+  verbose: False
   eval_metric: 'binary_logloss'
   early_stopping_rounds: 20
 
