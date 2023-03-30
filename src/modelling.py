@@ -176,7 +176,7 @@ class LGBMModel:
 
     def show_feature_importance(self):
         feat_imp = []
-        for fold in self.params['n_fold']:
+        for fold in range(self.params['n_fold']):
             model = self.folds[fold]['model']
             model.set_params(importance_type='gain')
             imp_gain = model.feature_importances_
