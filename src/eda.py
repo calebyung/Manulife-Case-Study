@@ -31,6 +31,7 @@ class EDA():
         self.transformed_data = pd.concat([X, y], axis=1)
 
     def plot_feature_correlation(self):
+        new_plot()
         plt.figure(figsize=(16, 6))
         heatmap = sns.heatmap(self.transformed_data.corr(), vmin=-1, vmax=1, annot=True, cmap='Greens')
         heatmap.set_title('Correlation Heatmap', fontdict={'fontsize':12}, pad=12)
