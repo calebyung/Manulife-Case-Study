@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, precision_recall_curve, log_loss
 from IPython.display import display
+import os
 
 
 class LGBMModel:
@@ -146,14 +147,54 @@ class LGBMModel:
         self.eval_test = self.evaluate(self.folds['test']['y_test'], y_test_pred, y_test_pred_proba)
 
     def evaluate_all(self):
+        # evaluate train, val, test sets
         self.evaluate_trn()
         self.evaluate_val()
         self.evaluate_test()
+
+        # report performance metrics
         self.eval_metrics = pd.DataFrame({'Train':[self.eval_trn['precision'], self.eval_trn['recall'], self.eval_trn['f1'], self.eval_trn['logloss']],
                                         'Validation':[self.eval_val['precision'], self.eval_val['recall'], self.eval_val['f1'], self.eval_val['logloss']],
-                                        'Test':[self.eval_test['precision'], self.eval_test['recall'], self.eval_test['f1'], self.eval_test['logloss']]})
+                                        'Test':[self.eval_test['precision'], self.eval_test['recall'], self.eval_test['f1'], self.eval_test['logloss']]},
+                                        index = ['Precision','Recall','F1','Logloss'])
         display(self.eval_metrics)
-        self.eval_metrics.to_csv('eval_metrics.csv')
+        self.eval_metrics.to_csv(os.path.join(self.params['output_path'], 'eval_metrics.csv'))
+
+        # report test set confusion matrix
+        self.test_confusion_matrix = pd.DataFrame(self.eval_test, columns=['Pred_0', 'Pred_1'], index=['True_0','True_1'])
+        self.test_confusion_matrix.to_csv(os.path.join(self.params['output_path'], 'test_confusion_matrix.csv'))
+        display(self.test_confusion_matrix)
+
+        # report Precision-Recall Curve
+        new_plot()
+        plt.plot(self.eval_test['pr_curve'][2], self.eval_test['pr_curve'][0][:-1], label='Precision')
+        plt.plot(self.eval_test['pr_curve'][2], self.eval_test['pr_curve'][1][:-1], label='Recall')
+        plt.title('Precision-Recall Curve for Test Set')
+        plt.grid()
+        plt.legend()
+        plt.show()
+
+    def show_feature_importance(self):
+        feat_imp = []
+        for fold in self.params['n_fold']:
+            model = self.folds[fold]['model']
+            model.set_params(importance_type='gain')
+            imp_gain = model.feature_importances_
+            model.set_params(importance_type='split')
+            imp_split = model.feature_importances_
+            output = pd.concat([
+                        pd.DataFrame({'feat':model.feature_name_, 'imp':imp_gain}).assign(imp_type='gain', imp=lambda x: x.imp.rank()),
+                        pd.DataFrame({'feat':model.feature_name_, 'imp':imp_split}).assign(imp_type='split', imp=lambda x: x.imp.rank())
+                    ], axis=0).assign(fold=fold)
+            feat_imp.append(output)
+        feat_imp_grouped = feat_imp.groupby('feat').imp.mean().sort_values(ascending=False).reset_index()
+        feat_imp_grouped.to_csv(os.path.join(self.params['output_path'], 'feat_imp_grouped.csv'))
+        display(feat_imp_grouped)
+        feat_imp_grouped.sort_values('imp', ascending=True).set_index('feat').plot.barh(figsize=(20, 20))
+        self.feat_imp = feat_imp
+        self.feat_imp_grouped = feat_imp_grouped
+
+
 
 
 

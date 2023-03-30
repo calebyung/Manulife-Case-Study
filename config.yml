@@ -5,6 +5,7 @@ gpu_enabled: False
 plt_color: 'white'
 
 data_path: '../../input/manulife-retention/Worksheet in Case preparation for interview- Data Scientist v2 (002) R.xlsx'
+output_path: '../'
 analysis_date: '2023-03-01'
 test_size: 0.2
 smote_ratio: 0.4
