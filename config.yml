@@ -6,6 +6,8 @@ plt_color: 'white'
 
 data_path: '../../input/manulife-retention/Worksheet in Case preparation for interview- Data Scientist v2 (002) R.xlsx'
 analysis_date: '2023-03-01'
+test_size: 0.2
+smote_ratio: 0.4
 n_fold: 5
 hp_tune_timeout: 10
 
