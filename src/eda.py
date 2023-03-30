@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import missingno as msno
 from IPython.display import display
+import os
 
 class EDA():
     def __init__(self, params, data):
