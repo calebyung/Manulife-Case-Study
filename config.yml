@@ -10,7 +10,7 @@ analysis_date: '2023-03-01'
 test_size: 0.2
 smote_ratio: 0.4
 n_fold: 5
-hp_tune_timeout: 10
+hp_tune_timeout: 600
 
 lgbm_var_params:
   max_depth: 32
