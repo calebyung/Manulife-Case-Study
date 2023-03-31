@@ -16,7 +16,7 @@ class FeatureEngineering:
         # sex - one-dimension encoding
         X.sex = X.sex.fillna('Unknown').map({'M':-1, 'Unknown':0, 'F':1})
 
-        # treate missing industry as separate category; group smaller industries into one; one-hot encoding the rest
+        # treate missing industry as separate category
         X.industry = X.industry.fillna(0).astype(int)
 
         # identify invalid year_of_birth; create feature as age
