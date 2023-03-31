@@ -9,6 +9,8 @@ import seaborn as sns
 import missingno as msno
 from IPython.display import display
 import os
+from sklearn.decomposition import PCA
+from sklearn.cluster import DBSCAN
 
 class EDA():
     def __init__(self, params, data):
@@ -54,3 +56,50 @@ class EDA():
         df.to_csv(os.path.join(self.params['output_path'], 'missing_values.csv'))
         msno.bar(self.data, figsize=(10,6), fontsize=10)
         msno.matrix(self.data, figsize=(10,6), fontsize=10)
+
+    def run_customer_clustering(self):
+        data = self.transformed_data.loc[lambda x: x.churn_in_6m==1, ['age','yrs_of_relationship','total_aum','no_of_transaction','income']]
+        pca = PCA(n_components=2, random_state=self.params['seed'])
+        data = pd.DataFrame(pca.fit_transform(data), columns=['pc0','pc1'])
+        db = DBSCAN(eps=0.3, min_samples=10).fit(data)
+        data['labels'] = db.labels_
+
+        # Number of clusters in labels, ignoring noise if present.
+        n_clusters_ = len(set(db.labels_)) - (1 if -1 in db.labels_ else 0)
+        n_noise_ = list(db.labels_).count(-1)
+
+
+        unique_labels = set(db.labels_)
+        core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+        core_samples_mask[db.core_sample_indices_] = True
+
+        colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+        for k, col in zip(unique_labels, colors):
+            if k == -1:
+                # Black used for noise.
+                col = [0, 0, 0, 1]
+
+            class_member_mask = db.labels_ == k
+
+            xy = data.values[class_member_mask & core_samples_mask]
+            plt.plot(
+                xy[:, 0],
+                xy[:, 1],
+                "o",
+                markerfacecolor=tuple(col),
+                markersize=5,
+            )
+
+            xy = data.values[class_member_mask & ~core_samples_mask]
+            plt.plot(
+                xy[:, 0],
+                xy[:, 1],
+                "o",
+                markerfacecolor=tuple(col),
+                markersize=5,
+            )
+
+        plt.title(f"Estimated number of clusters: {n_clusters_}")
+        plt.show()
+
+
