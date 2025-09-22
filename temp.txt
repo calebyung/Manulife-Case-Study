@@ -1,1 +1,58 @@
+import argparse
+import os
+import pandas as pd
+import xgboost as xgb
+
+def model_fn(model_dir):
+    """Load model for inference"""
+    booster = xgb.Booster()
+    booster.load_model(os.path.join(model_dir, "xgboost-model"))
+    return booster
+
+if __name__ == "__main__":
+    # Parse SageMaker arguments
+    parser = argparse.ArgumentParser()
+
+    # SageMaker-specific arguments
+    parser.add_argument("--train", type=str, default=os.environ["SM_CHANNEL_TRAIN"])
+    parser.add_argument("--validation", type=str, default=os.environ.get("SM_CHANNEL_VALIDATION", ""))
+    parser.add_argument("--model-dir", type=str, default=os.environ["SM_MODEL_DIR"])
+    parser.add_argument("--output-dir", type=str, default=os.environ["SM_OUTPUT_DATA_DIR"])
+
+    # Hyperparameters passed via Estimator
+    parser.add_argument("--num_round", type=int, default=100)
+    parser.add_argument("--max_depth", type=int, default=5)
+    parser.add_argument("--eta", type=float, default=0.2)
+    parser.add_argument("--objective", type=str, default="binary:logistic")
+
+    args = parser.parse_args()
+
+    # Load training data
+    train_df = pd.read_csv(os.path.join(args.train, "train.csv"))
+    X_train = train_df.drop("target", axis=1)
+    y_train = train_df["target"]
+    dtrain = xgb.DMatrix(X_train, label=y_train)
+
+    # Load validation data (optional)
+    if args.validation:
+        val_df = pd.read_csv(os.path.join(args.validation, "validation.csv"))
+        X_val = val_df.drop("target", axis=1)
+        y_val = val_df["target"]
+        dval = xgb.DMatrix(X_val, label=y_val)
+        evals = [(dtrain, "train"), (dval, "validation")]
+    else:
+        evals = [(dtrain, "train")]
+
+    # Train model
+    params = {
+        "max_depth": args.max_depth,
+        "eta": args.eta,
+        "objective": args.objective,
+        "verbosity": 1
+    }
+
+    model = xgb.train(params, dtrain, num_boost_round=args.num_round, evals=evals)
+
+    # Save model
+    model.save_model(os.path.join(args.model_dir, "xgboost-model"))
 
